@@ -1,0 +1,85 @@
+{
+  "name": "Simple Recipe Book",
+  "short_name": "Recipe Book",
+  "description": "A lightweight PWA to save, browse and share your favorite recipes — create shopping lists, mark favorites, and access recipes offline.",
+  "lang": "en-US",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fff8f0",
+  "theme_color": "#e67e22",
+  "orientation": "portrait-primary",
+  "categories": [
+    "food",
+    "books",
+    "lifestyle"
+  ],
+  "shortcuts": [
+    {
+      "name": "Add Recipe",
+      "short_name": "Add",
+      "description": "Create a new recipe",
+      "url": "/add-recipe",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192' width='96' height='96'><rect width='192' height='192' fill='%23fff8f0'/><rect x='32' y='28' width='128' height='136' rx='12' fill='%23e67e22'/><rect x='48' y='44' width='96' height='104' rx='8' fill='%23ffffff'/><path d='M64 72c0-8 8-16 16-16s16 8 16 16-8 24-16 24-16-16-16-24z' fill='%23e67e22'/><rect x='60' y='56' width='8' height='48' rx='4' fill='%23e67e22'/></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Favorites",
+      "short_name": "Favorites",
+      "description": "View your favorite recipes",
+      "url": "/favorites",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192' width='96' height='96'><rect width='192' height='192' fill='%23fff8f0'/><rect x='32' y='28' width='128' height='136' rx='12' fill='%23e67e22'/><rect x='48' y='44' width='96' height='104' rx='8' fill='%23ffffff'/><path d='M64 72c0-8 8-16 16-16s16 8 16 16-8 24-16 24-16-16-16-24z' fill='%23e67e22'/><rect x='60' y='56' width='8' height='48' rx='4' fill='%23e67e22'/></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Shopping List",
+      "short_name": "Shopping",
+      "description": "Open or build your grocery list",
+      "url": "/shopping-list",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192' width='96' height='96'><rect width='192' height='192' fill='%23fff8f0'/><rect x='32' y='28' width='128' height='136' rx='12' fill='%23e67e22'/><rect x='48' y='44' width='96' height='104' rx='8' fill='%23ffffff'/><path d='M64 72c0-8 8-16 16-16s16 8 16 16-8 24-16 24-16-16-16-24z' fill='%23e67e22'/><rect x='60' y='56' width='8' height='48' rx='4' fill='%23e67e22'/></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "icons": [
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192' width='192' height='192'><rect width='192' height='192' fill='%23fff8f0'/><rect x='32' y='28' width='128' height='136' rx='12' fill='%23e67e22'/><rect x='48' y='44' width='96' height='104' rx='8' fill='%23ffffff'/><path d='M64 72c0-8 8-16 16-16s16 8 16 16-8 24-16 24-16-16-16-24z' fill='%23e67e22'/><rect x='60' y='56' width='8' height='48' rx='4' fill='%23e67e22'/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192' width='512' height='512'><rect width='192' height='192' fill='%23fff8f0'/><rect x='32' y='28' width='128' height='136' rx='12' fill='%23e67e22'/><rect x='48' y='44' width='96' height='104' rx='8' fill='%23ffffff'/><path d='M64 72c0-8 8-16 16-16s16 8 16 16-8 24-16 24-16-16-16-24z' fill='%23e67e22'/><rect x='60' y='56' width='8' height='48' rx='4' fill='%23e67e22'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/home.png",
+      "sizes": "720x1280",
+      "type": "image/png",
+      "label": "Browse recipes"
+    },
+    {
+      "src": "/screenshots/recipe-detail.png",
+      "sizes": "720x1280",
+      "type": "image/png",
+      "label": "Recipe details & steps"
+    }
+  ],
+  "prefer_related_applications": false
+}

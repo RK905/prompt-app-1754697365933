@@ -1,0 +1,221 @@
+# This file tells GitHub Pages not to use Jekyll processing
+# Since we're serving static files (HTML, CSS, JS), we don't need Jekyll
+
+# Customized for: Simple Reciepe Book App (PWA)
+# --------------------------------------------------
+# Below are recommended companion files and snippets to turn this static site
+# into a Progressive Web App tailored for the "Simple Reciepe Book App".
+# Save the JSON/JS/HTML/CSS snippets in the filenames shown (remove the leading '# ').
+#
+# NOTE: This file intentionally stays as a plain text marker for GitHub Pages
+# (it DOES NOT get executed). Use the snippets below to create the actual PWA
+# assets in your repository root or /public folder.
+
+# ---- manifest.json (create at /manifest.json) ----
+# {
+#   "name": "Simple Reciepe Book App",
+#   "short_name": "RecipeBook",
+#   "description": "A small, fast recipe book app to store and access your favourite recipes offline.",
+#   "start_url": "/?utm_source=homescreen",
+#   "scope": "/",
+#   "display": "standalone",
+#   "background_color": "#ffffff",
+#   "theme_color": "#ff7043",
+#   "icons": [
+#     {
+#       "src": "/icons/icon-192.png",
+#       "sizes": "192x192",
+#       "type": "image/png",
+#       "purpose": "any maskable"
+#     },
+#     {
+#       "src": "/icons/icon-512.png",
+#       "sizes": "512x512",
+#       "type": "image/png"
+#     }
+#   ]
+# }
+
+# ---- service-worker.js (create at /service-worker.js) ----
+# const CACHE_NAME = 'recipebook-cache-v1';
+# const OFFLINE_URL = '/offline.html';
+# const ASSETS_TO_CACHE = [
+#   '/',
+#   '/index.html',
+#   '/styles.css',
+#   '/app.js',
+#   '/manifest.json',
+#   '/icons/icon-192.png',
+#   '/icons/icon-512.png',
+#   OFFLINE_URL
+# ];
+#
+# // Install: cache essential assets
+# self.addEventListener('install', event => {
+#   self.skipWaiting();
+#   event.waitUntil(
+#     caches.open(CACHE_NAME)
+#       .then(cache => cache.addAll(ASSETS_TO_CACHE))
+#   );
+# });
+#
+# // Activate: cleanup old caches
+# self.addEventListener('activate', event => {
+#   event.waitUntil(
+#     caches.keys().then(keys =>
+#       Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+#     )
+#   );
+#   self.clients.claim();
+# });
+#
+# // Fetch: network-first for recipes.json, cache-first for other assets
+# self.addEventListener('fetch', event => {
+#   const url = new URL(event.request.url);
+#
+#   // Example: Use network-first for dynamic recipe data
+#   if (url.pathname.endsWith('/recipes.json') || url.pathname.includes('/api/')) {
+#     event.respondWith(
+#       fetch(event.request)
+#         .then(res => {
+#           const clone = res.clone();
+#           caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+#           return res;
+#         })
+#         .catch(() => caches.match(event.request).then(r => r || caches.match(OFFLINE_URL)))
+#     );
+#     return;
+#   }
+#
+#   // Otherwise, try cache first then network
+#   event.respondWith(
+#     caches.match(event.request)
+#       .then(response => response || fetch(event.request).catch(() => caches.match(OFFLINE_URL)))
+#   );
+# });
+
+# ---- index.html head snippet (include inside <head>) ----
+# <!-- Basic PWA meta -->
+# <meta name="theme-color" content="#ff7043"/>
+# <link rel="manifest" href="/manifest.json">
+# <meta name="description" content="Simple Reciepe Book App — store and browse recipes offline.">
+# <link rel="icon" type="image/png" href="/icons/icon-192.png">
+# <!-- iOS support -->
+# <meta name="apple-mobile-web-app-capable" content="yes">
+# <meta name="apple-mobile-web-app-title" content="RecipeBook">
+# <link rel="apple-touch-icon" href="/icons/icon-192.png">
+#
+# ---- index.html body snippet (service worker + prompt) ----
+# <script>
+#   // Register the service worker
+#   if ('serviceWorker' in navigator) {
+#     navigator.serviceWorker.register('/service-worker.js')
+#       .then(() => console.log('Service Worker registered for Simple Reciepe Book App'))
+#       .catch(err => console.warn('SW registration failed:', err));
+#   }
+#
+#   // Simple Add to Home Screen prompt handling
+#   let deferredPrompt;
+#   window.addEventListener('beforeinstallprompt', (e) => {
+#     e.preventDefault();
+#     deferredPrompt = e;
+#     // show your custom install UI here (e.g., a button)
+#     const btn = document.getElementById('install-btn');
+#     if (btn) {
+#       btn.style.display = 'inline-block';
+#       btn.addEventListener('click', async () => {
+#         btn.style.display = 'none';
+#         deferredPrompt.prompt();
+#         const choice = await deferredPrompt.userChoice;
+#         deferredPrompt = null;
+#       });
+#     }
+#   });
+# </script>
+
+# ---- offline.html (simple offline fallback) ----
+# <!doctype html>
+# <html lang="en">
+# <head>
+#   <meta charset="utf-8">
+#   <meta name="viewport" content="width=device-width,initial-scale=1">
+#   <title>Offline - Simple Reciepe Book</title>
+#   <link rel="stylesheet" href="/styles.css">
+# </head>
+# <body>
+#   <main class="container">
+#     <h1>You're offline</h1>
+#     <p>Simple Reciepe Book App is offline. You can still view saved recipes.</p>
+#     <a href="/" class="btn">Return home</a>
+#   </main>
+# </body>
+# </html>
+
+# ---- styles.css (tiny starter theme matching app) ----
+# :root {
+#   --accent: #ff7043;
+#   --bg: #fffaf6;
+#   --muted: #6b6b6b;
+#   --card: #ffffff;
+#   --radius: 12px;
+# }
+# html,body{height:100%;}
+# body {
+#   margin:0;
+#   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+#   background: linear-gradient(180deg, var(--bg), #fff);
+#   color:#222;
+# }
+# .container { max-width:900px; margin:24px auto; padding:16px; }
+# header { display:flex; align-items:center; gap:12px; }
+# .logo { width:56px; height:56px; border-radius:12px; background:var(--accent); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; }
+# .card { background:var(--card); border-radius:var(--radius); padding:16px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+# .btn { display:inline-block; background:var(--accent); color:#fff; padding:10px 14px; border-radius:10px; text-decoration:none; }
+# .muted{ color:var(--muted); font-size:0.95rem; }
+
+# ---- app.js (tiny behavior: store recipes locally) ----
+# // Simple front-end storage for recipes using localStorage
+# const STORAGE_KEY = 'simple-recipe-book-v1';
+#
+# function loadRecipes() {
+#   try {
+#     return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+#   } catch(e) {
+#     return [];
+#   }
+# }
+#
+# function saveRecipes(recipes) {
+#   localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes));
+# }
+#
+# // Example: add sample recipe if empty
+# if (!loadRecipes().length) {
+#   const sample = [{
+#     id: Date.now(),
+#     title: 'Simple Tomato Pasta',
+#     servings: 2,
+#     ingredients: ['200g pasta', '2 tomatoes', '1 clove garlic', 'Salt', 'Olive oil'],
+#     steps: ['Cook pasta','Make quick tomato sauce','Combine and serve'],
+#     notes: ''
+#   }];
+#   saveRecipes(sample);
+# }
+
+# ---- icons ----
+# Place two PNG icons in /icons:
+# - /icons/icon-192.png (192x192, for homescreen)
+# - /icons/icon-512.png (512x512, high-res)
+# Optionally supply maskable icon variation for better Android integration.
+
+# ---- Suggested features & integration for "Simple Reciepe Book App" ----
+# - Use lightweight JSON file (/recipes.json) or localStorage for recipe persistence.
+# - Allow offline viewing and adding/saving recipes — service worker caches UI + assets.
+# - Provide a minimal, touch-friendly UI with cards, large buttons, and readable steps.
+# - Export/import recipes (JSON) to let users backup/restore.
+# - Provide search and tagging (e.g., "breakfast", "dessert") that works offline.
+# - Keep the app accessible and fast: lazy load heavy images and optimize icons.
+#
+# That's it — keep this .nojekyll file in the repo root so GitHub Pages serves the raw
+# static files and the PWA assets above; create the files shown with the snippets to
+# complete the Progressive Web App for "Simple Reciepe Book App".

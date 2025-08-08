@@ -1,0 +1,299 @@
+/* Simple Recipe Book App - Custom styles for your PWA */
+/* Tailwind CSS is loaded via CDN, so you can use utility classes */
+
+/* Theme variables for quick brand changes */
+:root {
+    --brand-500: #ef6c35; /* warm orange */
+    --brand-600: #e55c2a;
+    --muted-700: #374151;
+    --muted-500: #6b7280;
+    --card-shadow: 0 8px 24px rgba(16,24,40,0.06);
+    --glass: rgba(255,255,255,0.6);
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --glass: rgba(17,24,39,0.6);
+        --card-shadow: 0 10px 30px rgba(2,6,23,0.7);
+    }
+
+    body {
+        background-color: #0b1220;
+        color: #e6eef8;
+    }
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.45s ease-out;
+}
+
+/* subtle pop for recipe cards */
+@keyframes cardPop {
+    from { transform: translateY(8px) scale(0.995); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.card-pop {
+    animation: cardPop 0.36s cubic-bezier(.2,.9,.3,1);
+}
+
+/* slide up for modals/drawers */
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.slide-up {
+    animation: slideUp 0.28s ease-out;
+}
+
+/* pulse for favorites */
+@keyframes softPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+    100% { transform: scale(1); }
+}
+.pulse-soft {
+    animation: softPulse 0.45s ease;
+}
+
+/* Custom button styles */
+.btn-primary {
+    @apply bg-[color:var(--brand-500)] hover:bg-[color:var(--brand-600)] text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200;
+    box-shadow: 0 6px 18px rgba(229,92,42,0.12);
+}
+
+.btn-secondary {
+    @apply bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors duration-200;
+}
+
+/* Floating Action Button for adding new recipe */
+.fab {
+    @apply fixed bottom-6 right-6 w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg z-40;
+    background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
+    box-shadow: 0 12px 30px rgba(229,92,42,0.18);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.fab:active { transform: scale(0.98); box-shadow: 0 8px 20px rgba(0,0,0,0.18); }
+
+/* App header / topbar */
+.app-header {
+    @apply sticky top-0 z-30 backdrop-blur-md;
+    background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.45));
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+@media (prefers-color-scheme: dark) {
+    .app-header {
+        background: linear-gradient(180deg, rgba(2,6,23,0.55), rgba(2,6,23,0.6));
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+}
+
+/* Header inner layout */
+.header-inner {
+    @apply max-w-4xl mx-auto px-6 py-3 flex items-center justify-between gap-4;
+}
+.header-title {
+    @apply flex items-center gap-3;
+}
+.logo-badge {
+    @apply w-10 h-10 rounded-md flex items-center justify-center text-white font-bold;
+    background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
+    box-shadow: 0 6px 20px rgba(229,92,42,0.12);
+}
+
+/* Search bar */
+.search-bar {
+    @apply flex items-center gap-2 bg-white/90 rounded-lg px-3 py-2 shadow-sm;
+    border: 1px solid rgba(15,23,42,0.04);
+    width: 100%;
+    max-width: 520px;
+}
+@media (prefers-color-scheme: dark) {
+    .search-bar { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.04); }
+}
+.search-input {
+    @apply flex-1 bg-transparent outline-none text-sm;
+}
+
+/* Container layout */
+.container {
+    @apply max-w-4xl mx-auto py-6 px-8;
+}
+
+/* Mobile-first responsive design */
+@media (max-width: 768px) {
+    .container {
+        @apply px-4;
+    }
+    .header-inner { @apply px-4; }
+}
+
+/* Recipe grid/list */
+.recipe-grid {
+    @apply grid gap-5 grid-cols-1;
+}
+@media (min-width: 768px) {
+    .recipe-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+@media (min-width: 1280px) {
+    .recipe-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+
+/* Recipe card */
+.recipe-card {
+    @apply bg-white rounded-2xl overflow-hidden cursor-pointer transition-transform duration-200;
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(15,23,42,0.04);
+}
+@media (prefers-color-scheme: dark) {
+    .recipe-card { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.04); }
+}
+.recipe-card:hover { transform: translateY(-6px) scale(1.01); }
+.recipe-card img {
+    @apply w-full h-44 object-cover;
+}
+
+/* Card body */
+.recipe-body {
+    @apply p-4;
+}
+.recipe-title {
+    @apply text-lg font-semibold leading-tight text-gray-900;
+}
+.recipe-meta {
+    @apply mt-2 flex items-center justify-between text-sm text-[color:var(--muted-500)];
+}
+.recipe-tags {
+    @apply flex gap-2 mt-3 flex-wrap;
+}
+.tag {
+    @apply text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700;
+}
+@media (prefers-color-scheme: dark) {
+    .tag { @apply bg-white/5 text-gray-200; }
+}
+
+/* Favorite heart button on card */
+.favorite-btn {
+    @apply p-2 rounded-md text-red-500 hover:bg-red-50/50 transition-colors;
+}
+.favorite-btn[data-fav="true"] {
+    @apply text-red-600;
+    transform-origin: center;
+}
+
+/* Ingredient list */
+.ingredient-list {
+    @apply mt-3 bg-white/80 rounded-lg p-3 text-sm grid gap-2;
+    border: 1px dashed rgba(15,23,42,0.04);
+}
+.ingredient-item {
+    @apply flex items-start gap-3 text-gray-700;
+}
+.ingredient-qty {
+    @apply font-medium text-[color:var(--brand-600)];
+}
+
+/* Instructions / steps */
+.step-list {
+    @apply mt-4 space-y-3;
+}
+.step {
+    @apply bg-gray-50 rounded-lg p-3 text-sm;
+    border-left: 3px solid rgba(15,23,42,0.06);
+}
+.step-number {
+    @apply inline-flex items-center justify-center w-6 h-6 rounded-full text-xs bg-[color:var(--brand-500)] text-white font-semibold mr-3;
+}
+
+/* Recipe detail modal/drawer */
+.recipe-modal {
+    @apply fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4;
+    background: linear-gradient(180deg, rgba(2,6,23,0.45), rgba(2,6,23,0.6));
+}
+.modal-card {
+    @apply w-full sm:max-w-3xl bg-white rounded-2xl overflow-hidden shadow-2xl;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+@media (prefers-color-scheme: dark) {
+    .modal-card { background: #071025; color: #e6eef8; }
+}
+.modal-scroll {
+    @apply overflow-auto p-5;
+}
+
+/* Empty state */
+.empty-state {
+    @apply flex flex-col items-center justify-center gap-4 py-20 text-center text-gray-500;
+}
+.empty-illustration {
+    @apply w-36 h-36 rounded-lg bg-gradient-to-br from-[color:var(--brand-500)] to-[color:var(--brand-600)] text-white flex items-center justify-center;
+}
+
+/* Offline banner for PWA */
+.offline-banner {
+    @apply fixed left-1/2 -translate-x-1/2 bottom-6 z-50 px-4 py-2 rounded-full text-sm font-medium text-white;
+    background: rgba(17,24,39,0.9);
+    box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+    display: none;
+}
+.offline-banner.show { display: block; }
+
+/* Chip / label styles for filter tags */
+.chip {
+    @apply inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-white/90 border border-gray-100 text-[color:var(--muted-700)];
+}
+.chip[data-active="true"] {
+    background: linear-gradient(90deg,var(--brand-500),var(--brand-600));
+    color: white;
+    border: none;
+    box-shadow: 0 6px 18px rgba(229,92,42,0.12);
+}
+
+/* Skeleton loading */
+.skeleton {
+    @apply animate-pulse bg-gray-200 rounded;
+}
+@media (prefers-color-scheme: dark) {
+    .skeleton { @apply bg-white/6; }
+}
+
+/* Print styles - print recipes nicely */
+@media print {
+    body { background: white; color: black; }
+    .app-header, .fab, .offline-banner, .search-bar { display: none !important; }
+    .recipe-card, .modal-card {
+        box-shadow: none !important;
+        border: none !important;
+        page-break-inside: avoid;
+    }
+}
+
+/* Accessibility helpers */
+.sr-only {
+    @apply sr-only;
+}
+
+/* Utility: subtle divider */
+.divider {
+    @apply w-full h-px my-3 bg-gray-100;
+}
+
+/* Small responsive tweaks */
+@media (max-width: 420px) {
+    .recipe-card img { height: 160px; }
+    .header-title .logo-badge { @apply w-9 h-9 text-sm; }
+}
+
+/* Preserve original structure - keep fade-in usage */
+.fade-in { animation: fadeIn 0.5s ease-out; }

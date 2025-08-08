@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Simple Recipe Book App</title>
+    <meta name="description" content="A small offline-first recipe book PWA — save, view and favorite your simple recipes." />
+    <meta name="theme-color" content="#F97316" />
+    <link rel="manifest" href="manifest.json">
+    <link href="style.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-orange-50 text-gray-900 min-h-screen">
+    <div id="app" class="container mx-auto px-4 py-8">
+        <header class="max-w-4xl mx-auto mb-6">
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-orange-700 flex items-center gap-3">
+                        <svg class="w-8 h-8 text-orange-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C13.1046 2 14 2.89543 14 4V10H12V4C12 3.44772 11.5523 3 11 3H9C8.44772 3 8 3.44772 8 4V10H6V4C6 2.89543 6.89543 2 8 2H12Z" fill="currentColor"/>
+                            <path d="M7 13C7 11.3431 8.34315 10 10 10H14C15.6569 10 17 11.3431 17 13V18C17 19.6569 15.6569 21 14 21H10C8.34315 21 7 19.6569 7 18V13Z" fill="currentColor"/>
+                        </svg>
+                        Simple Recipe Book
+                    </h1>
+                    <p class="text-sm text-orange-600/80 mt-1">Quick, offline-friendly recipe organizer — save ingredients, steps and favorite your go-to meals.</p>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button id="installBtn" class="hidden inline-flex items-center gap-2 px-3 py-2 bg-orange-600 text-white rounded-md shadow hover:bg-orange-700">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M12 5v10M5 12l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Install
+                    </button>
+                    <div id="offlineBadge" class="inline-flex items-center gap-2 text-sm px-2 py-1 rounded-md bg-red-100 text-red-700 hidden">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M12 2v4M4 7h16M4 11h16M4 15h16M4 19h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Offline
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-4xl mx-auto">
+            <section class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                <div class="md:col-span-2">
+                    <div class="flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm">
+                        <svg class="w-5 h-5 text-orange-500" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        <input id="search" type="search" placeholder="Search recipes, ingredients or tags..." class="w-full outline-none text-sm" />
+                        <button id="favoritesFilter" title="Show favorites" class="text-orange-600 hover:text-orange-700">
+                            <svg id="favIcon" class="w-5 h-5" viewBox="0 0 24 24" fill="none"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.54 0 3.04.99 3.57 2.36h.87C13.46 4.99 14.96 4 16.5 4 19 4 21 6 21 8.5c0 3.78-3.4 6.86-8.55 11.18L12 21z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button id="addBtn" class="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-md shadow hover:bg-orange-700">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Add Recipe
+                    </button>
+                </div>
+            </section>
+
+            <section id="list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Recipe cards rendered here -->
+            </section>
+
+            <p id="empty" class="text-center text-gray-500 mt-8 hidden">No recipes yet. Click "Add Recipe" to create your first one.</p>
+        </main>
+
+        <!-- Detail Drawer -->
+        <div id="drawer" class="fixed inset-0 backdrop-blur-sm bg-black/30 hidden z-40">
+            <div class="absolute right-0 top-0 h-full w-full sm:w-3/5 md:w-2/5 bg-white p-6 overflow-auto">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 id="drawerTitle" class="text-xl font-semibold text-orange-700">Recipe</h2>
+                    <div class="flex items-center gap-2">
+                        <button id="editBtn" class="text-sm px-3 py-2 bg-white border rounded-md hover:bg-orange-50">Edit</button>
+                        <button id="closeDrawer" class="text-sm px-3 py-2 bg-red-50 text-red-700 rounded-md">Close</button>
+                    </div>
+                </div>
+
+                <div id="drawerContent" class="space-y-4">
+                    <!-- Filled dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Modal -->
+        <div id="modal" class="fixed inset-0 bg-black/40 hidden z-50 flex items-center justify-center p-4">
+            <form id="recipeForm" class="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6 overflow-auto">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 id="modalTitle" class="text-lg font-semibold text-orange-700">Add Recipe</h3>
+                    <button type="button" id="closeModal" class="text-sm px-3 py-1 rounded-md bg-red-50 text-red-700">Cancel</button>
+                </div>
+
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Title</label>
+                        <input id="title" name="title" required class="mt-1 block w-full rounded-md border-gray-200 shadow-sm focus:ring-orange-500 focus:border-orange-500" />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Image URL (optional)</label>
+                        <input id="image" name="image" placeholder="https://..." class="mt-1 block w-full rounded-md border-gray-200 shadow-sm" />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Ingredients (one per line)</label>
+                        <textarea id="ingredients" name="ingredients" rows="4" class="mt-1 block w-full rounded-md border-gray-200 shadow-sm"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Steps (one per line)</label>
+                        <textarea id="steps" name="steps" rows="5" class="mt-1 block w-full rounded-md border-gray-200 shadow-sm"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm text-gray-700">Prep Time (min)</label>
+                            <input id="time" name="time" type="number" min="0" class="mt-1 block w-full rounded-md border-gray-200 shadow-sm" />
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-700">Servings</label>
+                            <input id="servings" name="servings" type="number" min="1" class="mt-1 block w-full rounded-md border-gray-200 shadow-sm" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-gray-700">Tags (comma separated)</label>
+                        <input id="tags" name="tags" placeholder="breakfast, quick" class="mt-1 block w-full rounded-md border-gray-200 shadow-sm" />
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3">
+                        <button type="submit" class="px-4 py-2 rounded-md bg-orange-600 text-white">Save</button>
+                    </div>
+                </div>
+
+                <input type="hidden" id="recipeId" />
+            </form>
+        </div>
+
+        <footer class="max-w-4xl mx-auto mt-8 text-center text-sm text-gray-500">
+            <p>Simple Recipe Book — works offline. Your recipes are stored locally on this device.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Simple Recipe Book App logic (keeps everything localStorage-based and offline-friendly)
+        (function() {
+            const STORAGE_KEY = 'simple-recipe-book-v1';
+            const app = document.getElementById('app');
+            const listEl = document.getElementById('list');
+            const emptyEl = document.getElementById('empty');
+            const searchInput = document.getElementById('search');
+            const addBtn = document.getElementById('addBtn');
+            const modal = document.getElementById('modal');
+            const drawer = document.getElementById('drawer');
+            const drawerContent = document.getElementById('drawerContent');
+            const drawerTitle = document.getElementById('drawerTitle');
+            const closeDrawer = document.getElementById('closeDrawer');
+            const recipeForm = document.getElementById('recipeForm');
+            const modalTitle = document.getElementById('modalTitle');
+            const closeModal = document.getElementById('closeModal');
+            const installBtn = document.getElementById('installBtn');
+            const offlineBadge = document.getElementById('offlineBadge');
+            const favoritesFilter = document.getElementById('favoritesFilter');
+            const favIcon = document.getElementById('favIcon');
+
+            let recipes = [];
+            let showingFavorites = false;
+            let deferredPrompt = null;
+
+            // Sample seed recipes
+            const seed = [
+                {
+                    id: cryptoRandomId(),
+                    title: "Classic Pancakes",
+                    image: "",
+                    ingredients: ["1 1/2 cups all-purpose flour","3 1/2 tsp baking powder","1 tsp salt","1 tbsp sugar","1 1/4 cups milk","1 egg","3 tbsp melted butter"],
+                    steps: ["Mix dry ingredients","Add milk, egg and butter","Stir until smooth","Cook on hot griddle until golden"],
+                    time: 20,
+                    servings: 4,
+                    tags: ["breakfast","quick"],
+                    favorite: true,
+                    createdAt: Date.now()
+                },
+                {
+                    id: cryptoRandomId(),
+                    title: "Tomato & Basil Pasta",
+                    image: "",
+                    ingredients: ["200g pasta","2 cups cherry tomatoes","2 cloves garlic","Handful fresh basil","Olive oil","Salt & pepper"],
+                    steps: ["Cook pasta","Sauté garlic and tomatoes","Toss pasta with tomatoes and basil","Serve with a drizzle of olive oil"],
+                    time: 25,
+                    servings: 2,
+                    tags: ["dinner","vegetarian","quick"],
+                    favorite: false,
+                    createdAt: Date.now()
+                }
+            ];
+
+            // Utilities
+            function cryptoRandomId() {
+                return 'r_' + Math.random().toString(36).slice(2,9);
+            }
+
+            function save() {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes));
+            }
+
+            function load() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    recipes = raw ? JSON.parse(raw) : null;
+                } catch (e) {
+                    recipes = null;
+                }
+                if (!recipes || !Array.isArray(recipes) || recipes.length === 0) {
+                    recipes = seed;
+                    save();
+                }
+            }
+
+            function renderList() {
+                const q = searchInput.value.trim().toLowerCase();
+                const filtered = recipes.filter(r => {
+                    if (showingFavorites && !r.favorite) return false;
+                    if (!q) return true;
+                    const inTitle = r.title.toLowerCase().includes(q);
+                    const inIngredients = r.ingredients.join(' ').toLowerCase().includes(q);
+                    const inTags = r.tags.join(' ').toLowerCase().includes(q);
+                    return inTitle || inIngredients || inTags;
+                }).sort((a,b) => b.createdAt - a.createdAt);
+
+                listEl.innerHTML = '';
+                if (filtered.length === 0) {
+                    emptyEl.classList.remove('hidden');
+                } else {
+                    emptyEl.classList.add('hidden');
+                }
+
+                for (const r of filtered) {
+                    const card = document.createElement('article');
+                    card.className = 'bg-white rounded-lg shadow p-4 flex flex-col';
+
+                    const img = document.createElement('div');
+                    img.className = 'h-36 bg-orange-50 rounded-md mb-3 flex items-center justify-center overflow-hidden';
+                    if (r.image) {
+                        const imgel = document.createElement('img');
+                        imgel.src = r.image;
+                        imgel.alt = r.title;
+                        imgel.className = 'w-full h-full object-cover';
+                        img.appendChild(imgel);
+                    } else {
+                        img.innerHTML = '<div class="text-orange-300 text-xl font-semibold">'+ (r.title.split(' ').slice(0,2).join(' ')) +'</div>';
+                    }
+
+                    const title = document.createElement('h3');
+                    title.className = 'font-semibold text-orange-700 text-lg';
+                    title.textContent = r.title;
+
+                    const meta = document.createElement('div');
+                    meta.className = 'text-sm text-gray-500 mt-1 flex items-center justify-between';
+                    meta.innerHTML = `<div>${r.time ? r.time + ' min' : ''} ${r.servings ? ' • ' + r.servings + ' servings' : ''}</div><div class="text-xs text-gray-400">${r.tags.slice(0,3).map(t=>'<span class="px-2 py-0.5 bg-gray-100 rounded-full mr-1">'+t+'</span>').join('')}</div>`;
+
+                    const actions = document.createElement('div');
+                    actions.className = 'mt-3 flex items-center justify-between gap-2';
+
+                    const left = document.createElement('div');
+                    left.className = 'flex items-center gap-2';
+                    const viewBtn = document.createElement('button');
+                    viewBtn.className = 'px-3 py-1 text-sm rounded-md bg-orange-50 text-orange-700 hover:bg-orange-100';
+                    viewBtn.textContent = 'View';
+                    viewBtn.addEventListener('click', () => openDrawer(r.id));
+
+                    const shareBtn = document.createElement('button');
+                    shareBtn.className = 'px-3 py-1 text-sm rounded-md bg-white border hover:bg-orange-50';
+                    shareBtn.textContent = 'Share';
+                    shareBtn.addEventListener('click', () => shareRecipe(r));
+
+                    left.appendChild(viewBtn);
+                    left.appendChild(shareBtn);
+
+                    const right = document.createElement('div');
+                    right.className = 'flex items-center gap-2';
+                    const fav = document.createElement('button');
+                    fav.className = 'p-1 rounded-full';
+                    fav.innerHTML = r.favorite ? '<svg class="w-5 h-5 text-orange-500" viewBox="0 0 24 24" fill="none"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.54 0 3.04.99 3.57 2.36h.87C13.46 4.99 14.96 4 16.5 4 19 4 21 6 21 8.5c0 3.78-3.4 6.86-8.55 11.18L12 21z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>' : '<svg class="w-5 h-5 text-gray-400" viewBox="0 0 24 24" fill="none"><path d="M12 21l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.54 0 3.04.99 3.57 2.36h.87C13.46 4.99 14.96 4 16.5 4 19 4 21 6 21 8.5c0 3.78-3.4 6.86-8.55 11.18L12 21z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+                    fav.addEventListener('click', () => {
+                        toggleFavorite(r.id);
+                    });
+
+                    const del = document.createElement('button');
+                    del.className = 'px-2 py-1 text-sm rounded-md bg-red-50 text-red-600';
+                    del.textContent = 'Delete';
+                    del.addEventListener('click', () => {
+                        if (confirm('Delete "'+r.title+'"?')) {
+                            deleteRecipe(r.id);
+                        }
+                    });
+
+                    right.appendChild(fav);
+                    right.appendChild(del);
+
+                    actions.appendChild(left);
+                    actions.appendChild(right);
+
+                    card.appendChild(img);
+                    card.appendChild(title);
+                    card.appendChild(meta);
+                    card.appendChild(actions);
+
+                    listEl.appendChild(card);
+                }
+            }
+
+            function openDrawer(id) {
+                const r = recipes.find(x => x.id === id);
+                if (!r) return;
+                drawerTitle.textContent = r.title;
+                drawerContent.innerHTML = `
+                    ${r.image ? '<img src="'+r.image+'" alt="'+escapeHtml(r.title)+'" class="w-full h-44 object-cover rounded-md mb-3" />' : ''}
+                    <div class="text-sm text-gray-600"><strong>Time:</strong> ${r.time ? r.time + ' min' : '—'} • <strong>Servings:</strong> ${r.servings || '—'}</div>
+                    <div class="mt-3">
+                        <h4 class="font-semibold text-gray-700">Ingredients</h4>
+                        <ul class="list-disc pl-5 mt-1 text-gray-700">${r.ingredients.map(i => '<li>'+escapeHtml(i) +'</li>').join('')}</ul>
+                    </div>
+                    <div class="mt-3">
+                        <h4 class="font-semibold text-gray-700">Steps</h4>
+                        <ol class="list-decimal pl-5 mt-1 text-gray-700">${r.steps.map(s => '<li>'+escapeHtml(s) +'</li>').join('')}</ol>
+                    </div>
+                    <div class="mt-4 text-sm text-gray-500">Tags: ${r.tags.map(t => '<span class="px-2 py-0.5 bg-gray-100 rounded-full mr-1">'+escapeHtml(t)+'</span>').join('')}</div>
+                `;
+                // attach edit handler
+                document.getElementById('editBtn').onclick = () => {
+                    openModal(r.id);
+                };
+                drawer.classList.remove('hidden');
+            }
+
+            function closeDrawerFn() {
+                drawer.classList.add('hidden');
+                drawerContent.innerHTML = '';
+            }
+
+            function openModal(id) {
+                recipeForm.reset();
+                document.getElementById('recipeId').value = '';
+                modalTitle.textContent = id ? 'Edit Recipe' : 'Add Recipe';
+                if (id) {
+                    const r = recipes.find(x => x.id === id);
+                    if (!r) return;
+                    document.getElementById('recipeId').value = r.id;
+                    document.getElementById('title').value = r.title;
+                    document.getElementById('image').value = r.image || '';
+                    document.getElementById('ingredients').value = r.ingredients.join('\n');
+                    document.getElementById('steps').value = r.steps.join('\n');
+                    document.getElementById('time').value = r.time || '';
+                    document.getElementById('servings').value = r.servings || '';
+                    document.getElementById('tags').value = r.tags.join(', ');
+                }
+                modal.classList.remove('hidden');
+            }
+
+            function closeModalFn() {
+                modal.classList.add('hidden');
+            }
+
+            function addOrUpdateRecipe(e) {
+                e.preventDefault();
+                const id = document.getElementById('recipeId').value;
+                const title = document.getElementById('title').value.trim();
+                if (!title) {
+                    alert('Please provide a title.');
+                    return;
+                }
+                const image = document.getElementById('image').value.trim();
+                const ingredients = document.getElementById('ingredients').value.split('\n').map(s => s.trim()).filter(Boolean);
+                const steps = document.getElementById('steps').value.split('\n').map(s => s.trim()).filter(Boolean);
+                const time = parseInt(document.getElementById('time').value) || null;
+                const servings = parseInt(document.getElementById('servings').value) || null;
+                const tags = document.getElementById('tags').value.split(',').map(s=>s.trim()).filter(Boolean);
+
+                if (id) {
+                    const idx = recipes.findIndex(x => x.id === id);
+                    if (idx >= 0) {
+                        recipes[idx] = {
+                            ...recipes[idx],
+                            title, image, ingredients, steps, time, servings, tags
+                        };
+                    }
+                } else {
+                    const newR = {
+                        id: cryptoRandomId(),
+                        title, image, ingredients, steps, time, servings, tags,
+                        favorite: false,
+                        createdAt: Date.now()
+                    };
+                    recipes.unshift(newR);
+                }
+
+                save();
+                renderList();
+                closeModalFn();
+            }
+
+            function deleteRecipe(id) {
+                recipes = recipes.filter(r => r.id !== id);
+                save();
+                renderList();
+                closeDrawerFn();
+            }
+
+            function toggleFavorite(id) {
+                const r = recipes.find(x => x.id === id);
+                if (!r) return;
+                r.favorite = !r.favorite;
+                save();
+                renderList();
+            }
+
+            function shareRecipe(r) {
+                const text = `${r.title}\n\nIngredients:\n${r.ingredients.join('\n')}\n\nSteps:\n${r.steps.join('\n')}`;
+                if (navigator.share) {
+                    navigator.share({
+                        title: r.title,
+                        text
+                    }).catch(()=>{/* ignore */});
+                } else {
+                    navigator.clipboard?.writeText(text).then(()=> {
+                        alert('Recipe copied to clipboard');
+                    }).catch(()=> {
+                        prompt('Copy the recipe text:', text);
+                    });
+                }
+            }
+
+            function escapeHtml(s) {
+                return (s+'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+            }
+
+            // Search & filters
+            let searchDebounce = null;
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchDebounce);
+                searchDebounce = setTimeout(renderList, 200);
+            });
+
+            favoritesFilter.addEventListener('click', () => {
+                showingFavorites = !showingFavorites;
+                favIcon.style.color = showingFavorites ? '#EA580C' : '';
+                renderList();
+            });
+
+            // Buttons
+            addBtn.addEventListener('click', () => openModal());
+            closeModal.addEventListener('click', () => closeModalFn());
+            recipeForm.addEventListener('submit', addOrUpdateRecipe);
+            closeDrawer.addEventListener('click', closeDrawerFn);
+
+            // Installation (PWA)
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                installBtn.classList.remove('hidden');
+            });
+
+            installBtn.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                deferredPrompt.prompt();
+                const choice = await deferredPrompt.userChoice;
+                if (choice.outcome === 'accepted') {
+                    installBtn.classList.add('hidden');
+                }
+                deferredPrompt = null;
+            });
+
+            // Service worker registration (best-effort)
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    // registration succeeded
+                    console.log('SW registered', reg);
+                    updateOnlineStatus();
+                }).catch(err => {
+                    console.log('SW registration failed', err);
+                    updateOnlineStatus();
+                });
+            } else {
+                updateOnlineStatus();
+            }
+
+            // Online/offline indicator
+            function updateOnlineStatus() {
+                if (navigator.onLine) {
+                    offlineBadge.classList.add('hidden');
+                } else {
+                    offlineBadge.classList.remove('hidden');
+                }
+            }
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+
+            // Initialization
+            load();
+            renderList();
+            updateOnlineStatus();
+
+            // Simple keyboard shortcuts
+            window.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+                if (e.key === 'Escape') {
+                    closeModalFn();
+                    closeDrawerFn();
+                }
+            });
+
+            // Expose for debugging (optional)
+            window._sr = {
+                getAll: () => recipes,
+                save,
+                renderList
+            };
+        })();
+    </script>
+</body>
+</html>
